@@ -1,0 +1,36 @@
+package templates
+
+templ Login(errorMsg string) {
+	@Layout("Login", false, "") {
+		<div class="auth-container">
+			<div class="auth-box">
+				<h2>Login</h2>
+				if errorMsg != "" {
+					@Flash(getErrorMessage(errorMsg), "error")
+				}
+				<form action="/login" method="post" class="auth-form">
+					<div class="form-group">
+						<label for="email">Email</label>
+						<input type="email" id="email" name="email" required autofocus/>
+					</div>
+					<div class="form-group">
+						<label for="password">Password</label>
+						<input type="password" id="password" name="password" required/>
+					</div>
+					<button type="submit" class="btn btn-primary btn-full">Login</button>
+				</form>
+			</div>
+		</div>
+	}
+}
+
+func getErrorMessage(code string) string {
+	switch code {
+	case "missing_fields":
+		return "Please fill in all fields"
+	case "invalid_credentials":
+		return "Invalid email or password"
+	default:
+		return "An error occurred"
+	}
+}

@@ -1,0 +1,53 @@
+package templates
+
+templ Register(token string, inviteEmail string, errorMsg string) {
+	@Layout("Register", false, "") {
+		<div class="auth-container">
+			<div class="auth-box">
+				<h2>Create Your Account</h2>
+				if errorMsg != "" {
+					@Flash(getRegisterErrorMessage(errorMsg), "error")
+				}
+				<form action={ templ.URL("/register/" + token) } method="post" class="auth-form">
+					<div class="form-group">
+						<label for="name">Full Name</label>
+						<input type="text" id="name" name="name" required autofocus/>
+					</div>
+					<div class="form-group">
+						<label for="email">Email</label>
+						<input type="email" id="email" name="email" value={ inviteEmail } required readonly/>
+					</div>
+					<div class="form-group">
+						<label for="password">Password</label>
+						<input type="password" id="password" name="password" required minlength="8"/>
+						<small>Minimum 8 characters</small>
+					</div>
+					<div class="form-group">
+						<label for="confirm_password">Confirm Password</label>
+						<input type="password" id="confirm_password" name="confirm_password" required/>
+					</div>
+					<button type="submit" class="btn btn-primary btn-full">Create Account</button>
+				</form>
+			</div>
+		</div>
+	}
+}
+
+func getRegisterErrorMessage(code string) string {
+	switch code {
+	case "missing_fields":
+		return "Please fill in all fields"
+	case "email_mismatch":
+		return "Email must match the invited email"
+	case "password_mismatch":
+		return "Passwords do not match"
+	case "invalid_invite":
+		return "Invalid or expired invite"
+	case "invite_expired":
+		return "This invite has expired"
+	case "email already exists":
+		return "An account with this email already exists"
+	default:
+		return code
+	}
+}

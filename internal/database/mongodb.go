@@ -55,6 +55,25 @@ func (r *TaskRepository) FindAll(ctx context.Context) ([]models.Task, error) {
 	return tasks, nil
 }
 
+func (r *TaskRepository) FindByUserID(ctx context.Context, userID primitive.ObjectID) ([]models.Task, error) {
+	cursor, err := r.collection.Find(ctx, bson.M{"user_id": userID})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var tasks []models.Task
+	if err = cursor.All(ctx, &tasks); err != nil {
+		return nil, err
+	}
+
+	if tasks == nil {
+		tasks = []models.Task{}
+	}
+
+	return tasks, nil
+}
+
 func (r *TaskRepository) FindByID(ctx context.Context, id string) (*models.Task, error) {
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -63,6 +82,24 @@ func (r *TaskRepository) FindByID(ctx context.Context, id string) (*models.Task,
 
 	var task models.Task
 	err = r.collection.FindOne(ctx, bson.M{"_id": objectID}).Decode(&task)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, errors.New("task not found")
+		}
+		return nil, err
+	}
+
+	return &task, nil
+}
+
+func (r *TaskRepository) FindByIDAndUserID(ctx context.Context, id string, userID primitive.ObjectID) (*models.Task, error) {
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, errors.New("invalid task ID")
+	}
+
+	var task models.Task
+	err = r.collection.FindOne(ctx, bson.M{"_id": objectID, "user_id": userID}).Decode(&task)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return nil, errors.New("task not found")
@@ -103,6 +140,36 @@ func (r *TaskRepository) Update(ctx context.Context, id string, task *models.Tas
 	return nil
 }
 
+func (r *TaskRepository) UpdateByUserID(ctx context.Context, id string, userID primitive.ObjectID, task *models.Task) error {
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return errors.New("invalid task ID")
+	}
+
+	task.UpdatedAt = time.Now()
+
+	update := bson.M{
+		"$set": bson.M{
+			"title":       task.Title,
+			"description": task.Description,
+			"status":      task.Status,
+			"due_date":    task.DueDate,
+			"updated_at":  task.UpdatedAt,
+		},
+	}
+
+	result, err := r.collection.UpdateOne(ctx, bson.M{"_id": objectID, "user_id": userID}, update)
+	if err != nil {
+		return err
+	}
+
+	if result.MatchedCount == 0 {
+		return errors.New("task not found")
+	}
+
+	return nil
+}
+
 func (r *TaskRepository) Delete(ctx context.Context, id string) error {
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -110,6 +177,24 @@ func (r *TaskRepository) Delete(ctx context.Context, id string) error {
 	}
 
 	result, err := r.collection.DeleteOne(ctx, bson.M{"_id": objectID})
+	if err != nil {
+		return err
+	}
+
+	if result.DeletedCount == 0 {
+		return errors.New("task not found")
+	}
+
+	return nil
+}
+
+func (r *TaskRepository) DeleteByUserID(ctx context.Context, id string, userID primitive.ObjectID) error {
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return errors.New("invalid task ID")
+	}
+
+	result, err := r.collection.DeleteOne(ctx, bson.M{"_id": objectID, "user_id": userID})
 	if err != nil {
 		return err
 	}

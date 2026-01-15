@@ -1,0 +1,18 @@
+package templates
+
+templ Header(userName string) {
+	<header class="header">
+		<div class="container">
+			<div class="header-content">
+				<h1 class="logo"><a href="/">Task Manager</a></h1>
+				<nav class="nav">
+					<span class="user-name">Welcome, { userName }</span>
+					<a href="/admin/invites" class="nav-link">Invites</a>
+					<form action="/logout" method="post" style="display: inline;">
+						<button type="submit" class="btn btn-secondary">Logout</button>
+					</form>
+				</nav>
+			</div>
+		</div>
+	</header>
+}

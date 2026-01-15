@@ -1,0 +1,85 @@
+package templates
+
+import "github.com/cfegela/azure-aca-go-templ-mongo/internal/models"
+
+templ Invites(userName string, invites []models.Invite, successMsg string) {
+	@Layout("Manage Invites", true, userName) {
+		<div class="container">
+			<h2>Manage Invites</h2>
+
+			if successMsg != "" {
+				@Flash(successMsg, "success")
+			}
+
+			<div class="invite-form-container">
+				<h3>Create New Invite</h3>
+				<form action="/admin/invites" method="post" class="invite-form">
+					<div class="form-group">
+						<label for="email">Email Address</label>
+						<input type="email" id="email" name="email" required placeholder="user@example.com"/>
+					</div>
+					<button type="submit" class="btn btn-primary">Send Invite</button>
+				</form>
+			</div>
+
+			<div class="invites-list">
+				<h3>Existing Invites</h3>
+				if len(invites) == 0 {
+					<p class="empty-state">No invites created yet.</p>
+				} else {
+					<table class="invites-table">
+						<thead>
+							<tr>
+								<th>Email</th>
+								<th>Created</th>
+								<th>Expires</th>
+								<th>Status</th>
+								<th>Link</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, invite := range invites {
+								<tr>
+									<td>{ invite.Email }</td>
+									<td>{ invite.CreatedAt.Format("Jan 02, 2006") }</td>
+									<td>{ invite.ExpiresAt.Format("Jan 02, 2006") }</td>
+									<td>
+										if invite.UsedAt != nil {
+											<span class="status-badge status-used">Used</span>
+										} else if invite.IsValid() {
+											<span class="status-badge status-valid">Valid</span>
+										} else {
+											<span class="status-badge status-expired">Expired</span>
+										}
+									</td>
+									<td>
+										if invite.IsValid() {
+											<button class="btn btn-small" onclick={ copyInviteLink(invite.Token) }>Copy Link</button>
+										} else {
+											<span>-</span>
+										}
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				}
+			</div>
+		</div>
+		<script>
+			function copyInviteLink(token) {
+				const link = window.location.origin + '/register/' + token;
+				navigator.clipboard.writeText(link).then(() => {
+					alert('Invite link copied to clipboard!');
+				});
+			}
+		</script>
+	}
+}
+
+script copyInviteLink(token string) {
+	const link = window.location.origin + '/register/' + token;
+	navigator.clipboard.writeText(link).then(() => {
+		alert('Invite link copied to clipboard!');
+	});
+}

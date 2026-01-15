@@ -8,13 +8,14 @@ import (
 )
 
 type Task struct {
-	ID          primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	Title       string             `json:"title" bson:"title"`
-	Description string             `json:"description" bson:"description"`
-	Status      string             `json:"status" bson:"status"`
-	DueDate     *time.Time         `json:"due_date,omitempty" bson:"due_date,omitempty"`
-	CreatedAt   time.Time          `json:"created_at" bson:"created_at"`
-	UpdatedAt   time.Time          `json:"updated_at" bson:"updated_at"`
+	ID          primitive.ObjectID  `json:"id,omitempty" bson:"_id,omitempty"`
+	UserID      primitive.ObjectID  `json:"user_id" bson:"user_id"`
+	Title       string              `json:"title" bson:"title"`
+	Description string              `json:"description" bson:"description"`
+	Status      string              `json:"status" bson:"status"`
+	DueDate     *time.Time          `json:"due_date,omitempty" bson:"due_date,omitempty"`
+	CreatedAt   time.Time           `json:"created_at" bson:"created_at"`
+	UpdatedAt   time.Time           `json:"updated_at" bson:"updated_at"`
 }
 
 const (

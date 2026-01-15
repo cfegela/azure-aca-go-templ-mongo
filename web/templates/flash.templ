@@ -1,0 +1,9 @@
+package templates
+
+templ Flash(message string, messageType string) {
+	if message != "" {
+		<div class={ "flash", "flash-" + messageType }>
+			{ message }
+		</div>
+	}
+}

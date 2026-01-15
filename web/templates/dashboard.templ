@@ -1,0 +1,27 @@
+package templates
+
+import "github.com/cfegela/azure-aca-go-templ-mongo/internal/models"
+
+templ Dashboard(userName string, tasks []models.Task) {
+	@Layout("Dashboard", true, userName) {
+		<div class="container">
+			<div class="dashboard-header">
+				<h2>My Tasks</h2>
+				<a href="/tasks/new" class="btn btn-primary">+ New Task</a>
+			</div>
+
+			if len(tasks) == 0 {
+				<div class="empty-state">
+					<p>No tasks yet. Create your first task to get started!</p>
+					<a href="/tasks/new" class="btn btn-primary">Create Task</a>
+				</div>
+			} else {
+				<div class="tasks-grid">
+					for _, task := range tasks {
+						@TaskCard(task)
+					}
+				</div>
+			}
+		</div>
+	}
+}

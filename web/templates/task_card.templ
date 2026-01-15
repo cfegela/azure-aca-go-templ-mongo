@@ -1,0 +1,27 @@
+package templates
+
+import "github.com/cfegela/azure-aca-go-templ-mongo/internal/models"
+import "fmt"
+
+templ TaskCard(task models.Task) {
+	<div class="task-card" data-status={ task.Status }>
+		<div class="task-header">
+			<h3 class="task-title">{ task.Title }</h3>
+			<span class={ "task-status", "status-" + task.Status }>
+				{ task.Status }
+			</span>
+		</div>
+		<p class="task-description">{ task.Description }</p>
+		if task.DueDate != nil {
+			<p class="task-due-date">
+				Due: { task.DueDate.Format("Jan 02, 2006") }
+			</p>
+		}
+		<div class="task-actions">
+			<a href={ templ.URL(fmt.Sprintf("/tasks/%s/edit", task.ID.Hex())) } class="btn btn-small">Edit</a>
+			<form action={ templ.URL(fmt.Sprintf("/tasks/%s/delete", task.ID.Hex())) } method="post" style="display: inline;">
+				<button type="submit" class="btn btn-small btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+			</form>
+		</div>
+	</div>
+}
