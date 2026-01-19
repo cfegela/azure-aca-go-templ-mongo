@@ -1,0 +1,27 @@
+# Azure Configuration
+resource_group_name = "rg-go-tasks-prod"
+location            = "East US"
+
+# Application Configuration
+app_name     = "go-tasks-app"
+database_name = "tasksdb"
+image_tag     = "latest"
+
+# Security Configuration
+jwt_secret = "your-secure-jwt-secret-change-this"
+jwt_expiry = "24h"
+
+# Scaling Configuration
+min_replicas = 1
+max_replicas = 5
+
+# Resource Configuration
+container_cpu    = 0.5
+container_memory = "1Gi"
+
+# Tags
+tags = {
+  Environment = "Production"
+  ManagedBy   = "Terraform"
+  Application = "Go Tasks App"
+}

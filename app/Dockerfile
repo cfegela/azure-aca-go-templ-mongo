@@ -18,8 +18,9 @@ COPY . .
 # Generate templ templates
 RUN /go/bin/templ generate
 
-# Build the application
+# Build both the server and seed binaries
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/server
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o seed ./cmd/seed
 
 # Runtime stage
 FROM alpine:latest
@@ -28,14 +29,21 @@ RUN apk --no-cache add ca-certificates
 
 WORKDIR /root/
 
-# Copy the binary from builder
+# Copy both binaries from builder
 COPY --from=builder /app/main .
+COPY --from=builder /app/seed .
 
 # Copy static files
 COPY --from=builder /app/web/static ./web/static
 
+# Create startup script
+RUN echo '#!/bin/sh' > /root/start.sh && \
+    echo './seed || true' >> /root/start.sh && \
+    echo './main' >> /root/start.sh && \
+    chmod +x /root/start.sh
+
 # Expose port
 EXPOSE 8080
 
-# Run the application
-CMD ["./main"]
+# Run the startup script
+CMD ["/root/start.sh"]
